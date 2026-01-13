@@ -78,8 +78,14 @@ export default function TwitterGrowthApp() {
     }));
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert('✅ Copied to clipboard!');
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      alert('❌ Failed to copy. Please try again.');
+    }
   };
 
   return (
@@ -364,4 +370,5 @@ export default function TwitterGrowthApp() {
     </div>
   );
 }
+
 
