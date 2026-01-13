@@ -11,6 +11,7 @@ export default function TwitterGrowthApp() {
     followers: 0
   });
   const [activeTab, setActiveTab] = useState<'generate' | 'schedule' | 'analytics'>('generate');
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const viralTopics = [
     '🔥 Trending Tech',
@@ -78,13 +79,28 @@ export default function TwitterGrowthApp() {
     }));
   };
 
-  const copyToClipboard = async (text: string) => {
+  const copyToClipboard = async (text: string, index: number) => {
     try {
       await navigator.clipboard.writeText(text);
-      alert('✅ Copied to clipboard!');
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
-      alert('❌ Failed to copy. Please try again.');
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopiedIndex(index);
+        setTimeout(() => setCopiedIndex(null), 2000);
+      } catch (e) {
+        console.error('Fallback copy failed:', e);
+      }
+      document.body.removeChild(textArea);
     }
   };
 
@@ -228,10 +244,14 @@ export default function TwitterGrowthApp() {
                             📤 Post Now
                           </button>
                           <button 
-                            onClick={() => copyToClipboard(tweet)}
-                            className="px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium"
+                            onClick={() => copyToClipboard(tweet, idx)}
+                            className={`px-4 py-2 border-2 rounded-lg transition-all text-sm font-medium ${
+                              copiedIndex === idx
+                                ? 'border-green-600 bg-green-50 text-green-600'
+                                : 'border-blue-600 text-blue-600 hover:bg-blue-50'
+                            }`}
                           >
-                            📋 Copy
+                            {copiedIndex === idx ? '✅ Copied!' : '📋 Copy'}
                           </button>
                         </div>
                         <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
@@ -370,5 +390,8 @@ export default function TwitterGrowthApp() {
     </div>
   );
 }
+
+
+
 
 
